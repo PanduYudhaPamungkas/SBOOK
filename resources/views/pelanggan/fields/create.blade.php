@@ -8,7 +8,7 @@
     <form method="GET" action="{{ url('pelanggan/pesan/create') }}">
         <div class="mb-4 w-25">
             <label for="tanggal" class="form-label">Pilih Tanggal</label>
-            <input type="date" name="tanggal" id="tanggal" 
+            <input type="date" name="tanggal" id="tanggal"
                 class="form-control mb-3"
                 value="{{ request('tanggal', date('Y-m-d')) }}"
                 min="{{ date('Y-m-d') }}"
@@ -20,11 +20,12 @@
         @csrf
         <input type="hidden" name="tanggal" value="{{ request('tanggal', date('Y-m-d')) }}">
         @php
-            // Buat orderMap hanya sekali
             $orderMap = [];
-            foreach ($orders as $order) {
-                $orderMap[$order->lapangan_id][$order->jam] = true;
-            }
+                foreach ($orders as $order) {
+                    if (in_array($order->status, ['pending', 'confirmed'])) {
+                        $orderMap[$order->lapangan_id][$order->jam] = true;
+                    }
+                }
         @endphp
 
         <div class="table-responsive">
@@ -47,16 +48,16 @@
                                     $isBooked = isset($orderMap[$field->id][$jamStr]);
                                 @endphp
                                 <td>
-                                    <input type="checkbox" class="btn-check" 
-                                        name="selections[]" 
-                                        id="select-{{ $field->id }}-{{ $hour }}" 
+                                    <input type="checkbox" class="btn-check"
+                                        name="selections[]"
+                                        id="select-{{ $field->id }}-{{ $hour }}"
                                         value="{{ $field->id }}|{{ $jamStr }}"
                                         data-name="{{ $field->name }}"
                                         {{ $isBooked ? 'disabled' : '' }}>
-                                        
-                                    <label class="btn border border-2 rounded p-2 w-100 select-card {{ $isBooked ? 'bg-secondary text-white' : '' }}" 
+
+                                    <label class="btn border border-2 rounded p-2 w-100 select-card {{ $isBooked ? 'bg-secondary text-white' : '' }}"
                                         for="select-{{ $field->id }}-{{ $hour }}">
-                                        
+
                                         <p class="fs-6 mb-0">60 Menit</p>
                                         <small class="fs-7">Rp {{ number_format($field->price, 0, ',', '.') }}</small><br>
                                         <small class="fs-7">{{ $isBooked ? 'Booked' : 'Available' }}</small>

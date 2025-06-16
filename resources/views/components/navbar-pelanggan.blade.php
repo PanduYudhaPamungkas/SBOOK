@@ -29,7 +29,7 @@
                 </li>
                 <li class="nav-item mx-1 mx-lg-2">
                     <a class="nav-link fw-medium position-relative px-2 {{ Request::is('pelanggan/pesan/data') ? 'active' : '' }}" href="{{ url('/pelanggan/pesan/data') }}">
-                        Data Sewa Lapangan
+                        Transaksi
                         <span class="position-absolute bottom-0 start-50 translate-middle-x bg-danger rounded"
                               style="height: 2px; width: {{ Request::is('pelanggan/pesan/data') ? '70%' : '0' }}; transition: width 0.3s ease;"></span>
                     </a>
