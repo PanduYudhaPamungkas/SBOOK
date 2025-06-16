@@ -14,17 +14,32 @@ class FieldController extends Controller
     }
 
     public function detailLapangan($lapanganId, $tanggal)
-{
-    $orders = \App\Models\Order::with('user', 'field')
-        ->where('lapangan_id', $lapanganId)
-        ->where('tanggal', $tanggal)
-        ->orderBy('jam')
-        ->get();
+    {
+        $lapangan = \App\Models\Field::findOrFail($lapanganId);
 
-    $lapangan = \App\Models\Field::findOrFail($lapanganId);
+        $orders = \App\Models\Order::with('user', 'field')
+            ->where('lapangan_id', $lapanganId)
+            ->where('tanggal', $tanggal)
+            ->where('status', 'confirmed')
+            ->get()
+            ->filter(function ($order) {
+                $now = time(); // waktu sekarang (timestamp)
 
-    return view('pemilik.fields.detail', compact('orders', 'lapangan', 'tanggal'));
-}
+                // Ambil jam selesai dari "07:00 - 08:00"
+                $jamParts = explode('-', $order->jam);
+                $jamSelesai = isset($jamParts[1]) ? trim($jamParts[1]) : null;
+
+                // Gabungkan tanggal + jam selesai jadi timestamp
+                $waktuSelesai = strtotime($order->tanggal . ' ' . $jamSelesai);
+
+                // Tampilkan hanya jika waktu selesai > sekarang
+                return $waktuSelesai > $now;
+            });
+
+        return view('pemilik.fields.detail', compact('orders', 'lapangan', 'tanggal'));
+    }
+
+
 
 
     public function create()

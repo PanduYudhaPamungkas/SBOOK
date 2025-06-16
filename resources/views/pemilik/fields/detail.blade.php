@@ -9,7 +9,7 @@
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-4 text-center">
-                    <img src="{{ asset('storage/fields/' . $lapangan->photo) }}" alt="Foto Lapangan" class="img-fluid rounded shadow" style="max-height: 250px; object-fit: cover;">
+                    <img src="{{ asset('storage/' . $lapangan->photo) }}" alt="Foto Lapangan" class="img-fluid rounded shadow" style="max-height: 250px; object-fit: cover;">
                 </div>
                 <div class="col-md-8">
                     <h5 class="fw-bold">{{ $lapangan->name }}</h5>
@@ -19,7 +19,7 @@
                     </p>
                     <p class="mb-0">
                         <i class="bi bi-check-circle {{ $lapangan->available ? 'text-success' : 'text-danger' }}"></i>
-                        <strong>Status:</strong> 
+                        <strong>Status:</strong>
                         <span class="badge bg-{{ $lapangan->available ? 'success' : 'danger' }}">
                             {{ $lapangan->available ? 'Available' : 'Tidak Tersedia' }}
                         </span>
@@ -47,8 +47,11 @@
 
     <div class="card shadow">
         <div class="card-body">
+            <a href="{{ route('fields.index') }}" class="btn btn-outline-danger  fw-semibold mb-3 px-4 py-2 shadow-sm">
+                <i class="bi bi-arrow-left-circle me-1"></i> Kembali ke Daftar Lapangan
+            </a>
             @if ($orders->isEmpty())
-                <div class="alert alert-info text-center">Belum ada pemesanan pada tanggal ini.</div>
+                <div class="alert alert-info text-center">Tidak ada pemesanan pada tanggal ini.</div>
             @else
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle text-center">

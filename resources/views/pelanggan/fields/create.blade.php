@@ -5,6 +5,7 @@
 <div class="container py-4 px-5">
     <h2 class="mb-4">Tambah Pesanan</h2>
 
+    {{-- Form Pilih Tanggal --}}
     <form method="GET" action="{{ url('pelanggan/pesan/create') }}">
         <div class="mb-4 w-25">
             <label for="tanggal" class="form-label">Pilih Tanggal</label>
@@ -16,16 +17,18 @@
         </div>
     </form>
 
+    {{-- Form Simpan Pesanan --}}
     <form method="POST" action="{{ url('pelanggan/pesan/store') }}" id="storeForm">
         @csrf
         <input type="hidden" name="tanggal" value="{{ request('tanggal', date('Y-m-d')) }}">
+
         @php
             $orderMap = [];
-                foreach ($orders as $order) {
-                    if (in_array($order->status, ['pending', 'confirmed'])) {
-                        $orderMap[$order->lapangan_id][$order->jam] = true;
-                    }
+            foreach ($orders as $order) {
+                if (in_array($order->status, ['pending', 'confirmed'])) {
+                    $orderMap[$order->lapangan_id][$order->jam] = true;
                 }
+            }
         @endphp
 
         <div class="table-responsive">
@@ -43,24 +46,46 @@
                         @php $jamStr = sprintf('%02d:00 - %02d:00', $hour, $hour + 1); @endphp
                         <tr>
                             <td class="fw-bold">{{ $jamStr }}</td>
+
                             @foreach ($fields as $field)
                                 @php
                                     $isBooked = isset($orderMap[$field->id][$jamStr]);
+
+                                    // Logika waktu selesai untuk deteksi expired
+                                    $jamSelesai = explode('-', $jamStr)[1]; // Ambil jam selesai
+                                    $jamSelesai = trim($jamSelesai);
+                                    $tanggalSlot = request('tanggal', date('Y-m-d'));
+
+                                    $waktuSelesaiTimestamp = strtotime($tanggalSlot . ' ' . $jamSelesai);
+                                    $nowTimestamp = time();
+
+                                    $isPast = $waktuSelesaiTimestamp <= $nowTimestamp;
+                                    $isDisabled = $isBooked || $isPast;
                                 @endphp
+
                                 <td>
                                     <input type="checkbox" class="btn-check"
                                         name="selections[]"
                                         id="select-{{ $field->id }}-{{ $hour }}"
                                         value="{{ $field->id }}|{{ $jamStr }}"
                                         data-name="{{ $field->name }}"
-                                        {{ $isBooked ? 'disabled' : '' }}>
+                                        {{ $isDisabled ? 'disabled' : '' }}>
 
-                                    <label class="btn border border-2 rounded p-2 w-100 select-card {{ $isBooked ? 'bg-secondary text-white' : '' }}"
+                                    <label class="btn border border-2 rounded p-2 w-100 select-card
+                                        {{ $isBooked ? 'bg-secondary text-white' : ($isPast ? 'bg-light text-muted' : '') }}"
                                         for="select-{{ $field->id }}-{{ $hour }}">
 
                                         <p class="fs-6 mb-0">60 Menit</p>
                                         <small class="fs-7">Rp {{ number_format($field->price, 0, ',', '.') }}</small><br>
-                                        <small class="fs-7">{{ $isBooked ? 'Booked' : 'Available' }}</small>
+                                        <small class="fs-7">
+                                            @if ($isBooked)
+                                                Booked
+                                            @elseif ($isPast)
+                                                Not Available
+                                            @else
+                                                Available
+                                            @endif
+                                        </small>
                                     </label>
                                 </td>
                             @endforeach
@@ -75,6 +100,7 @@
         </div>
     </form>
 
+    {{-- Modal Konfirmasi --}}
     <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -84,7 +110,7 @@
             </div>
             <div class="modal-body">
                 <ul id="confirmationList" class="list-group">
-                <!-- Pesanan akan diisi pakai JS -->
+                    <!-- Diisi lewat JavaScript -->
                 </ul>
             </div>
             <div class="modal-footer">
@@ -99,7 +125,6 @@
 @endsection
 
 @section('js')
-
 <script>
 function showConfirmation() {
     const selected = document.querySelectorAll('input[name="selections[]"]:checked');
@@ -125,7 +150,4 @@ function showConfirmation() {
     modal.show();
 }
 </script>
-
-
-
 @endsection

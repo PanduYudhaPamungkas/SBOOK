@@ -20,6 +20,7 @@
                                 <th>Pemesan</th>
                                 <th>Tanggal Pemesanan</th>
                                 <th>Detail Pesanan</th>
+                                <th>Harga Total</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -28,6 +29,12 @@
                             @foreach ($orders as $orderUniqueId => $group)
                                 @php
                                     $first = $group->first();
+                                    $total = $group->sum(fn($order) => $order->field->price);
+                                    $statusClass = [
+                                        'pending' => 'warning',
+                                        'confirmed' => 'success',
+                                        'cancelled' => 'danger'
+                                    ][$first->status] ?? 'secondary';
                                 @endphp
                                 <tr>
                                     <td class="fw-bold">{{ $orderUniqueId }}</td>
@@ -44,13 +51,9 @@
                                         </ul>
                                     </td>
                                     <td>
-                                        @php
-                                            $statusClass = [
-                                                'pending' => 'warning',
-                                                'confirmed' => 'success',
-                                                'cancelled' => 'danger'
-                                            ][$first->status] ?? 'secondary';
-                                        @endphp
+                                        <strong>Rp {{ number_format($total, 0, ',', '.') }}</strong>
+                                    </td>
+                                    <td>
                                         <span class="badge bg-{{ $statusClass }}">
                                             {{ ucfirst($first->status) }}
                                         </span>

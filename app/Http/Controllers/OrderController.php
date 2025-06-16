@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Field;
 use App\Models\Order;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -99,6 +100,53 @@ class OrderController extends Controller
 
         return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui!');
     }
+
+    public function cancelOrder($id)
+    {
+        $order = Order::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+        if ($order->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pesanan sudah dikonfirmasi dan tidak bisa dibatalkan.');
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        return redirect()->back()->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    public function laporan(Request $request)
+    {
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
+
+        $orders = Order::with(['user', 'field'])
+            ->where('status', 'confirmed')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->where(function ($query) {
+                $query->whereDate('tanggal', '<', now()->toDateString())
+                    ->orWhere(function ($q) {
+                        $q->whereDate('tanggal', now()->toDateString())
+                            ->where('jam', '<', now()->format('H:i'));
+                    });
+            })
+            ->get()
+            ->groupBy('order_unique_id');
+
+        $totalJam = $orders->flatten()->count();
+        $totalUang = $orders->flatten()->sum('harga');
+
+        return view('pemilik.laporan.index', [
+            'orders' => $orders,
+            'totalJam' => $totalJam,
+            'totalUang' => $totalUang,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+        ]);
+    }
+
+
+
 
 
 

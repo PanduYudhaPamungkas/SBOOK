@@ -7,6 +7,9 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -19,14 +22,11 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Tangani proses autentikasi pengguna.
+     * Proses login pengguna.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Validasi & login diproses oleh LoginRequest
         $request->authenticate();
-
-        // Amankan session
         $request->session()->regenerate();
 
         $user = Auth::user();
@@ -39,15 +39,46 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Logout dan akhiri session pengguna.
+     * Logout pengguna dan hapus sesi.
      */
-    public function destroy(\Illuminate\Http\Request $request): RedirectResponse
+    public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');
     }
+
+    // /**
+    //  * Tampilkan halaman reset password (gunakan forgot-password.blade.php).
+    //  */
+    // public function showResetForm(): View
+    // {
+    //     return view('auth.forgot-password'); // ← Satu form untuk email + password baru
+    // }
+
+    // /**
+    //  * Proses reset password lokal (tanpa email).
+    //  */
+    // public function resetPasswordLokal(Request $request): RedirectResponse
+    // {
+    //     dd('MASUK FORM', $request->all());
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'password' => 'required|min:6|confirmed',
+    //     ]);
+
+    //     $user = User::where('email', $request->email)->first();
+
+    //     if (!$user) {
+    //         return back()->with('error', 'Email tidak ditemukan.');
+    //     }
+
+    //     $user->password = Hash::make($request->password);
+    //     $user->save();
+
+    //     return redirect()->route('login')->with('status', 'Password berhasil direset.');
+    // }
+
 }

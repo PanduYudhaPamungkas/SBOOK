@@ -31,18 +31,19 @@
                 </li>
 
                 <li class="nav-item mx-1 mx-lg-2">
-                    <a class="nav-link fw-medium position-relative px-2 {{ Request::routeIs('fields.index') ? 'active' : '' }}" href="{{ route('fields.index') }}">
+                    <a class="nav-link fw-medium position-relative px-2 {{ Request::is('pemilik/lapangan*') || Request::routeIs('fields.index') ? 'active' : '' }}" href="{{ route('fields.index') }}">
                         Lapangan
                         <span class="position-absolute bottom-0 start-50 translate-middle-x bg-danger rounded"
-                              style="height: 2px; width: {{ Request::routeIs('fields.index') ? '70%' : '0' }}; transition: width 0.3s ease;"></span>
+                            style="height: 2px; width: {{ Request::is('pemilik/lapangan*') || Request::routeIs('fields.index') ? '70%' : '0' }}; transition: width 0.3s ease;"></span>
                     </a>
                 </li>
 
                 <li class="nav-item mx-1 mx-lg-2">
-                    <a class="nav-link fw-medium position-relative px-2 {{ Request::is('pemilik/laporan*') ? 'active' : '' }}" href="#">
+                    <a class="nav-link fw-medium position-relative px-2 {{ Request::is('pemilik/laporan*') ? 'active' : '' }}"
+                    href="{{ route('pemilik.laporan.index') }}">
                         Laporan
                         <span class="position-absolute bottom-0 start-50 translate-middle-x bg-danger rounded"
-                              style="height: 2px; width: {{ Request::is('pemilik/laporan*') ? '70%' : '0' }}; transition: width 0.3s ease;"></span>
+                            style="height: 2px; width: {{ Request::is('pemilik/laporan*') ? '70%' : '0' }}; transition: width 0.3s ease;"></span>
                     </a>
                 </li>
 

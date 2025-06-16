@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
         // Panggil semua seeder yang kamu butuhkan
         $this->call([
             AdminSeeder::class,
-            FieldSeeder::class,
-            OrderSeeder::class,
+            // FieldSeeder::class,
+            // OrderSeeder::class,
         ]);
     }
 }
