@@ -7,14 +7,24 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckRole
 {
-    public function handle($request, Closure $next, ...$roles)
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string  $role  Role yang diizinkan (misal: 'pemilik' atau 'pelanggan')
+     * @return mixed
+     */
+    public function handle($request, Closure $next, $role)
     {
-        if (!Auth::check()) return redirect('/login');
-
-        if (in_array(Auth::user()->role, $roles)) {
-            return $next($request);
+        if (!Auth::check()) {
+            return redirect('/login');
         }
 
-        return abort(403);
+        if (Auth::user()->role !== $role) {
+            abort(403, 'Akses ditolak: tidak punya izin.');
+        }
+
+        return $next($request);
     }
 }

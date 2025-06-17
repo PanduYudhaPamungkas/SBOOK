@@ -17,7 +17,7 @@
                     <div class="row g-0 align-items-center">
                         <div class="col-md-4">
                             @if ($field->photo)
-                                <img src="{{ asset('storage/fields/' . $field->photo) }}" class="img-fluid rounded-start" alt="{{ $field->name }}">
+                                <img src="{{ asset('storage/' . $field->photo) }}" class="img-fluid rounded-start" alt="{{ $field->name }}">
                             @else
                                 <img src="{{ asset('images/images.jpeg') }}" class="img-fluid rounded-start" alt="Default Field">
                             @endif
