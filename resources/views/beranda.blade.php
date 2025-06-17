@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>8BOOK - Sewa Lapangan Badminton</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Navbar Styles */
         .navbar {
             padding: 0.8rem 1rem;
             background-color: white;
@@ -55,7 +52,6 @@
             border-color: #bd2130;
         }
 
-        /* Hero Section Styles */
         .hero-section {
             padding: 3rem 1rem;
             background-image: url('https://lh3.googleusercontent.com/p/AF1QipNYpYQuVpo0QDJOtTS0WsFZY6AzmIUuhzILAaMS=s1360-w1360-h1020-rw');
@@ -136,7 +132,6 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="#">
@@ -165,7 +160,6 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
             <div class="row align-items-center">
