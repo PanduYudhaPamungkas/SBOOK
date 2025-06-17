@@ -79,14 +79,26 @@ class OrderController extends Controller
 
     public function owner_data_order()
     {
-        $orders = \App\Models\Order::with('field', 'user')
-            ->orderBy('created_at', 'desc')
+        $today = now()->toDateString();
+        $currentTime = now()->format('H:i');
+
+        $orders = Order::with('field', 'user')
+            ->where('status', 'confirmed')
+            ->where(function ($query) use ($today, $currentTime) {
+                $query->whereDate('tanggal', '>', $today)
+                    ->orWhere(function ($q) use ($today, $currentTime) {
+                        $q->whereDate('tanggal', $today)
+                            ->where('jam', '>=', $currentTime);
+                    });
+            })
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('jam', 'asc')
             ->get()
             ->groupBy('order_unique_id');
 
-
         return view('pemilik.orders.index', compact('orders'));
     }
+
 
     public function updateStatus(Request $request, $order_unique_id)
     {
@@ -114,36 +126,36 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Pesanan berhasil dibatalkan.');
     }
 
+
     public function laporan(Request $request)
     {
-        $bulan = $request->input('bulan', date('m'));
+        $bulanAwal = $request->input('bulan_awal', date('m'));
+        $bulanAkhir = $request->input('bulan_akhir', date('m'));
         $tahun = $request->input('tahun', date('Y'));
+
+        // Buat rentang tanggal awal dan akhir
+        $startDate = Carbon::createFromDate($tahun, $bulanAwal, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($tahun, $bulanAkhir, 1)->endOfMonth();
 
         $orders = Order::with(['user', 'field'])
             ->where('status', 'confirmed')
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->where(function ($query) {
-                $query->whereDate('tanggal', '<', now()->toDateString())
-                    ->orWhere(function ($q) {
-                        $q->whereDate('tanggal', now()->toDateString())
-                            ->where('jam', '<', now()->format('H:i'));
-                    });
-            })
+            ->whereBetween('tanggal', [$startDate, $endDate])
             ->get()
             ->groupBy('order_unique_id');
 
-        $totalJam = $orders->flatten()->count();
-        $totalUang = $orders->flatten()->sum('harga');
+        $totalJamAll = $orders->flatten()->count();
+        $totalUangAll = $orders->flatten()->sum(fn($order) => $order->field->price ?? 0);
 
         return view('pemilik.laporan.index', [
             'orders' => $orders,
-            'totalJam' => $totalJam,
-            'totalUang' => $totalUang,
-            'bulan' => $bulan,
+            'totalJam' => $totalJamAll,
+            'totalUang' => $totalUangAll,
+            'bulanAwal' => $bulanAwal,
+            'bulanAkhir' => $bulanAkhir,
             'tahun' => $tahun,
         ]);
     }
+
 
 
 

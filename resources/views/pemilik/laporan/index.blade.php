@@ -4,20 +4,30 @@
 <div class="container py-4">
     <h4 class="mb-4">📊 Laporan Transaksi</h4>
 
-    {{-- Filter Bulan dan Tahun --}}
     <form method="GET" action="{{ route('pemilik.laporan.index') }}" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="bulan" class="form-label">Bulan</label>
-            <select name="bulan" id="bulan" class="form-select">
-                @foreach(range(1,12) as $b)
+        <div class="col-md-3">
+            <label for="bulan_awal" class="form-label">Dari Bulan</label>
+            <select name="bulan_awal" id="bulan_awal" class="form-select">
+                @foreach(range(1, 12) as $b)
                     <option value="{{ str_pad($b, 2, '0', STR_PAD_LEFT) }}"
-                        {{ $bulan == str_pad($b, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                        {{ $bulanAwal == str_pad($b, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                         {{ DateTime::createFromFormat('!m', $b)->format('F') }}
                     </option>
                 @endforeach
             </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <label for="bulan_akhir" class="form-label">Sampai Bulan</label>
+            <select name="bulan_akhir" id="bulan_akhir" class="form-select">
+                @foreach(range(1, 12) as $b)
+                    <option value="{{ str_pad($b, 2, '0', STR_PAD_LEFT) }}"
+                        {{ $bulanAkhir == str_pad($b, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                        {{ DateTime::createFromFormat('!m', $b)->format('F') }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
             <label for="tahun" class="form-label">Tahun</label>
             <select name="tahun" id="tahun" class="form-select">
                 @foreach(range(date('Y'), 2020) as $t)
@@ -25,7 +35,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-4 d-flex align-items-end">
+        <div class="col-md-3 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
         </div>
     </form>
@@ -71,8 +81,8 @@
                             @foreach ($orders as $group)
                                 @php
                                     $first = $group->first();
-                                    $totalJam = $group->count();
-                                    $totalHarga = $group->sum('field.price');
+                                    $jumlahJam = $group->count();
+                                    $jumlahHarga = $group->sum('field.price');
                                 @endphp
                                 <tr>
                                     <td class="fw-bold">{{ $first->order_unique_id }}</td>
@@ -86,8 +96,8 @@
                                             @endforeach
                                         </ul>
                                     </td>
-                                    <td>{{ $totalJam }} jam</td>
-                                    <td>Rp {{ number_format($totalHarga, 0, ',', '.') }}</td>
+                                    <td>{{ $jumlahJam }} jam</td>
+                                    <td>Rp {{ number_format($jumlahHarga, 0, ',', '.') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -105,25 +115,36 @@
     const laporanChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Jam Total', 'Pemasukan'],
-            datasets: [{
-                label: 'Rekap Bulan Ini',
-                data: [{{ $totalJam }}, {{ $totalUang }}],
-                backgroundColor: ['#0d6efd', '#198754'],
-                borderWidth: 1
-            }]
+            labels: ['Jam Total', 'Pemasukan (Rp)'],
+            datasets: [
+                {
+                    label: 'Jam Total',
+                    data: [{{ $totalJam ?? 0 }}, null],
+                    backgroundColor: '#0d6efd',
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Pemasukan (Rp)',
+                    data: [null, {{ $totalUang ?? 0 }}],
+                    backgroundColor: '#198754',
+                    yAxisID: 'y1',
+                }
+            ]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            plugins: { legend: { display: true } },
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('id-ID');
-                        }
-                    }
+                    position: 'left',
+                    title: { display: true, text: 'Jam' }
+                },
+                y1: {
+                    beginAtZero: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Pemasukan (Rp)' }
                 }
             }
         }
