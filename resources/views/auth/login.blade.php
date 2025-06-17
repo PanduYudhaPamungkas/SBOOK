@@ -178,7 +178,7 @@
                                     </div>
                                 </div>
 
-
+{{-- 
                                 <!-- Ingat Saya & Lupa Password -->
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <div class="form-check">
@@ -186,7 +186,7 @@
                                         <label class="form-check-label" for="remember_me">Ingat saya</label>
                                     </div>
                                     <a href="{{ route('password.request') }}" class="forgot-link">Lupa kata sandi?</a>
-                                </div>
+                                </div> --}}
 
                                 <!-- Tombol Masuk -->
                                 <button type="submit" class="btn btn-login btn-primary w-100 mb-3">

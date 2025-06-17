@@ -79,16 +79,27 @@ class OrderController extends Controller
 
     public function owner_data_order()
     {
-        $today = now()->toDateString();
-        $currentTime = now()->format('H:i');
+        $nowDate = now()->toDateString();
+        $nowTime = now()->format('H:i');
 
+        // 1. Bersihkan pesanan cancelled yang sudah lewat waktunya
+        Order::where('status', 'cancelled')
+            ->where(function ($query) use ($nowDate, $nowTime) {
+                $query->whereDate('tanggal', '<', $nowDate)
+                    ->orWhere(function ($q) use ($nowDate, $nowTime) {
+                        $q->whereDate('tanggal', $nowDate)
+                        ->where('jam', '<', $nowTime);
+                    });
+            })->delete();
+
+        // 2. Ambil pesanan aktif yang belum berlangsung
         $orders = Order::with('field', 'user')
-            ->where('status', 'confirmed')
-            ->where(function ($query) use ($today, $currentTime) {
-                $query->whereDate('tanggal', '>', $today)
-                    ->orWhere(function ($q) use ($today, $currentTime) {
-                        $q->whereDate('tanggal', $today)
-                            ->where('jam', '>=', $currentTime);
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where(function ($query) use ($nowDate, $nowTime) {
+                $query->whereDate('tanggal', '>', $nowDate)
+                    ->orWhere(function ($q) use ($nowDate, $nowTime) {
+                        $q->whereDate('tanggal', $nowDate)
+                        ->where('jam', '>=', $nowTime);
                     });
             })
             ->orderBy('tanggal', 'asc')
@@ -98,6 +109,8 @@ class OrderController extends Controller
 
         return view('pemilik.orders.index', compact('orders'));
     }
+
+
 
 
     public function updateStatus(Request $request, $order_unique_id)
