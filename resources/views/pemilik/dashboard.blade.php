@@ -92,12 +92,6 @@
                                     <div class="small text-muted">Menunggu</div>
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="bg-success bg-opacity-10 rounded-3 p-3 mb-2">
-                                    <div class="fs-2 fw-bold text-success">{{ $completedToday ?? 0 }}</div>
-                                    <div class="small text-muted">Selesai</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
